@@ -24,6 +24,7 @@ public class UrlShortenerServiceTest {
     private static final String VALID_URL = "http://facebook.com";
     private static final String TINY_URL_FACEBOOK = "bM";
     private static final String INVALID_URL = "facebook.com";
+    private static final String ADDRESS = "http://localhost:8080";
 
     @Mock
     private UrlShortenerRepository urlShortenerRepository;
@@ -64,11 +65,11 @@ public class UrlShortenerServiceTest {
         String longUrl = this.VALID_URL;
         ShortUrl shortUrl = new ShortUrl(longUrl);
         UrlShortener urlShortener = new UrlShortener(100L, longUrl);
-        ShortUrl expect = new ShortUrl(this.TINY_URL_FACEBOOK);
+        ShortUrl expect = new ShortUrl(String.format("%s/%s", this.ADDRESS, this.TINY_URL_FACEBOOK));
 
         when(urlShortenerRepository.save(any(UrlShortener.class))).thenReturn(urlShortener);
 
-        ShortUrl result = urlShortenerService.createUrlShortener(shortUrl);
+        ShortUrl result = urlShortenerService.createUrlShortener(shortUrl, ADDRESS);
 
         Assert.assertEquals(result, expect);
     }
@@ -79,7 +80,7 @@ public class UrlShortenerServiceTest {
         ShortUrl shortUrl = new ShortUrl(longUrl);
         UrlShortener urlShortener = new UrlShortener(100L, longUrl);
 
-        ShortUrl result = urlShortenerService.createUrlShortener(shortUrl);
+        ShortUrl result = urlShortenerService.createUrlShortener(shortUrl, ADDRESS);
     }
 
     @Test(expected = BadRequestException.class)
@@ -88,6 +89,6 @@ public class UrlShortenerServiceTest {
         ShortUrl shortUrl = new ShortUrl(longUrl);
         UrlShortener urlShortener = new UrlShortener(100L, longUrl);
 
-        ShortUrl result = urlShortenerService.createUrlShortener(shortUrl);
+        ShortUrl result = urlShortenerService.createUrlShortener(shortUrl, ADDRESS);
     }
 }

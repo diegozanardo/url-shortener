@@ -29,7 +29,7 @@ public class UrlShortenerService {
         return new ShortUrl(urlShortener.getOriginalUrl());
     }
 
-    public ShortUrl createUrlShortener(ShortUrl shortUrl) {
+    public ShortUrl createUrlShortener(ShortUrl shortUrl, String address) {
         if (shortUrl == null || shortUrl.getUrl().isEmpty()) {
             throw new BadRequestException(Errors.EMPTY);
         }
@@ -46,8 +46,9 @@ public class UrlShortenerService {
         urlShortener = urlShortenerRepository.save(urlShortener);
 
         String tinyUrl = GeneratorUrlService.encode((int) (long) urlShortener.getId());
+        tinyUrl = String.format("%s/%s", address, tinyUrl);
 
-        log.info(tinyUrl);
+        log.info("Create new url shortener {}", urlShortener);
 
         return new ShortUrl(tinyUrl);
     }

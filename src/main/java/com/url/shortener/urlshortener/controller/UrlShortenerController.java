@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
+
 @RestController
 public class UrlShortenerController {
 
@@ -47,9 +49,11 @@ public class UrlShortenerController {
                     consumes = { "application/json" },
                     method = RequestMethod.POST)
     public ResponseEntity<ShortUrl> create(@ApiParam(value = "URL to be shortened.")
-                                           @Validated @RequestBody ShortUrl shortUrl) {
+                                           @Validated @RequestBody ShortUrl shortUrl,
+                                           HttpServletRequest request) {
 
-        ShortUrl createdShortUrl = urlShortenerService.createUrlShortener(shortUrl);
+        String address = request.getRequestURL().toString();
+        ShortUrl createdShortUrl = urlShortenerService.createUrlShortener(shortUrl, address);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdShortUrl);
     }
