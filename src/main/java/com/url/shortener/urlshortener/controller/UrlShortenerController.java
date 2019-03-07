@@ -1,6 +1,8 @@
 package com.url.shortener.urlshortener.controller;
 
 import com.url.shortener.urlshortener.dto.ShortUrl;
+import com.url.shortener.urlshortener.enumeration.Errors;
+import com.url.shortener.urlshortener.enumeration.Messages;
 import com.url.shortener.urlshortener.service.UrlShortenerService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -25,8 +27,8 @@ public class UrlShortenerController {
 
     @ApiOperation(value = "Redirect a short URL to original URL")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "URL Created"),
-            @ApiResponse(code = 404, message = "The key was not found") })
+            @ApiResponse(code = 201, message = Messages.URL_CREATED),
+            @ApiResponse(code = 404, message = Errors.NOT_FOUND) })
     @RequestMapping(value = "/shortener/{key}", method = RequestMethod.GET)
     public ResponseEntity<Void> redirect(@ApiParam(value = "Key", required = true)
                                          @PathVariable("key") String key) {
@@ -38,8 +40,8 @@ public class UrlShortenerController {
 
     @ApiOperation(value = "Create a new Short Url")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "URL Created"),
-            @ApiResponse(code = 400, message = "Invalid input") })
+            @ApiResponse(code = 201, message = Messages.URL_CREATED),
+            @ApiResponse(code = 400, message = Errors.INVALID_INPUT) })
     @RequestMapping(value = "/shortener",
                     produces = { "application/json" },
                     consumes = { "application/json" },
