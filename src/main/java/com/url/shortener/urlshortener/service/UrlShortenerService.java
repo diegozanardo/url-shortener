@@ -1,6 +1,7 @@
 package com.url.shortener.urlshortener.service;
 
 import com.url.shortener.urlshortener.dto.ShortUrl;
+import com.url.shortener.urlshortener.dto.ShortUrlStatistics;
 import com.url.shortener.urlshortener.enumeration.Errors;
 import com.url.shortener.urlshortener.exception.BadRequestException;
 import com.url.shortener.urlshortener.exception.NotFoundException;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Service
 @Slf4j
@@ -21,10 +24,12 @@ public class UrlShortenerService {
     private UrlShortenerRepository urlShortenerRepository;
 
     public ShortUrl getUrlShortener(String key) {
-        int id = GeneratorUrlService.decode(key);
 
-        UrlShortener urlShortener = urlShortenerRepository.findById(Long.valueOf(id))
-                .orElseThrow(() -> new NotFoundException(Errors.NOT_FOUND));
+        UrlShortener urlShortener = getUrlShortenerDb(key);
+
+        urlShortener.setHits(urlShortener.getHits() + 1);
+        urlShortener.setLastHitAt(LocalDateTime.now());
+        urlShortenerRepository.save(urlShortener);
 
         return new ShortUrl(urlShortener.getOriginalUrl());
     }
@@ -40,9 +45,7 @@ public class UrlShortenerService {
             throw new BadRequestException(Errors.INVALID_URL);
         }
 
-        UrlShortener urlShortener = new UrlShortener();
-        urlShortener.setOriginalUrl(shortUrl.getUrl());
-
+        UrlShortener urlShortener = new UrlShortener(shortUrl.getUrl());
         urlShortener = urlShortenerRepository.save(urlShortener);
 
         String tinyUrl = GeneratorUrlService.encode((int) (long) urlShortener.getId());
@@ -52,6 +55,22 @@ public class UrlShortenerService {
 
         return new ShortUrl(tinyUrl);
     }
+
+    private UrlShortener getUrlShortenerDb(String key) {
+        int id = GeneratorUrlService.decode(key);
+
+        return urlShortenerRepository.findById(Long.valueOf(id))
+                .orElseThrow(() -> new NotFoundException(Errors.NOT_FOUND));
+    }
+
+    public ShortUrlStatistics getStatistics(String key) {
+        UrlShortener urlShortener = getUrlShortenerDb(key);
+
+        return new ShortUrlStatistics(urlShortener.getOriginalUrl(),
+                urlShortener.getCreateadAt(), urlShortener.getLastHitAt(), urlShortener.getHits());
+
+    }
+
 }
 
 

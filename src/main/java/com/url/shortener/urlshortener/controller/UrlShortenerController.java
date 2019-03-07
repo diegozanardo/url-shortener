@@ -1,6 +1,7 @@
 package com.url.shortener.urlshortener.controller;
 
 import com.url.shortener.urlshortener.dto.ShortUrl;
+import com.url.shortener.urlshortener.dto.ShortUrlStatistics;
 import com.url.shortener.urlshortener.enumeration.Errors;
 import com.url.shortener.urlshortener.enumeration.Messages;
 import com.url.shortener.urlshortener.service.UrlShortenerService;
@@ -29,7 +30,7 @@ public class UrlShortenerController {
 
     @ApiOperation(value = "Redirect a short URL to original URL")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = Messages.URL_CREATED),
+            @ApiResponse(code = 200, message = Messages.SUCCESSFUL),
             @ApiResponse(code = 404, message = Errors.NOT_FOUND) })
     @RequestMapping(value = "/shortener/{key}", method = RequestMethod.GET)
     public ResponseEntity<Void> redirect(@ApiParam(value = "Key", required = true)
@@ -56,5 +57,17 @@ public class UrlShortenerController {
         ShortUrl createdShortUrl = urlShortenerService.createUrlShortener(shortUrl, address);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(createdShortUrl);
+    }
+
+    @ApiOperation(value = "Get statistics from a key")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = Messages.SUCCESSFUL),
+            @ApiResponse(code = 404, message = Errors.NOT_FOUND) })
+    @RequestMapping(value = "/statistics/{key}", method = RequestMethod.GET)
+    public ResponseEntity<ShortUrlStatistics> statistics(@ApiParam(value = "Key", required = true)
+                                         @PathVariable("key") String key) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(urlShortenerService.getStatistics(key));
     }
 }

@@ -1,6 +1,7 @@
 package com.url.shortener.urlshortener.service;
 
 import com.url.shortener.urlshortener.dto.ShortUrl;
+import com.url.shortener.urlshortener.dto.ShortUrlStatistics;
 import com.url.shortener.urlshortener.exception.BadRequestException;
 import com.url.shortener.urlshortener.exception.NotFoundException;
 import com.url.shortener.urlshortener.model.UrlShortener;
@@ -10,8 +11,15 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+
+import static org.mockito.Mockito.times;
+
 import org.mockito.junit.MockitoJUnitRunner;
 
+import static org.mockito.Mockito.verify;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -40,13 +48,18 @@ public class UrlShortenerServiceTest {
 
         ShortUrl expect = new ShortUrl(longUrl);
 
-        UrlShortener urlShortener = new UrlShortener(id, longUrl);
+        UrlShortener urlShortener = new UrlShortener();
+        urlShortener.setId(id);
+        urlShortener.setOriginalUrl(longUrl);
 
         when(urlShortenerRepository.findById(id)).thenReturn(Optional.of(urlShortener));
+        when(urlShortenerRepository.save(any(UrlShortener.class))).thenReturn(null);
 
         ShortUrl result = urlShortenerService.getUrlShortener(shortUrl);
 
         Assert.assertEquals(expect, result);
+        verify(urlShortenerRepository, times(1)).save(any());
+
     }
 
     @Test(expected = NotFoundException.class)
@@ -55,7 +68,9 @@ public class UrlShortenerServiceTest {
         String shortUrl = this.TINY_URL_FACEBOOK;
         String longUrl = this.VALID_URL;
 
-        UrlShortener urlShortener = new UrlShortener(id, longUrl);
+        UrlShortener urlShortener = new UrlShortener();
+        urlShortener.setId(id);
+        urlShortener.setOriginalUrl(longUrl);
 
         ShortUrl result = urlShortenerService.getUrlShortener(shortUrl);
     }
@@ -64,7 +79,9 @@ public class UrlShortenerServiceTest {
     public void shouldReturnTheShortUrlWhenCreateUrlShortener() {
         String longUrl = this.VALID_URL;
         ShortUrl shortUrl = new ShortUrl(longUrl);
-        UrlShortener urlShortener = new UrlShortener(100L, longUrl);
+        UrlShortener urlShortener = new UrlShortener();
+        urlShortener.setId(100L);
+        urlShortener.setOriginalUrl(longUrl);
         ShortUrl expect = new ShortUrl(String.format("%s/%s", this.ADDRESS, this.TINY_URL_FACEBOOK));
 
         when(urlShortenerRepository.save(any(UrlShortener.class))).thenReturn(urlShortener);
@@ -78,7 +95,9 @@ public class UrlShortenerServiceTest {
     public void shouldReturnTheBadRequestWhenCreateUrlShortenerReceiveidAEmptyUrl() {
         String longUrl = this.EMPTY_URL;
         ShortUrl shortUrl = new ShortUrl(longUrl);
-        UrlShortener urlShortener = new UrlShortener(100L, longUrl);
+        UrlShortener urlShortener = new UrlShortener();
+        urlShortener.setId(100L);
+        urlShortener.setOriginalUrl(longUrl);
 
         ShortUrl result = urlShortenerService.createUrlShortener(shortUrl, ADDRESS);
     }
@@ -87,8 +106,33 @@ public class UrlShortenerServiceTest {
     public void shouldReturnTheBadRequestWhenCreateUrlShortenerReceiveidAInvalidUrl() {
         String longUrl = this.INVALID_URL;
         ShortUrl shortUrl = new ShortUrl(longUrl);
-        UrlShortener urlShortener = new UrlShortener(100L, longUrl);
+        UrlShortener urlShortener = new UrlShortener();
+        urlShortener.setId(100L);
+        urlShortener.setOriginalUrl(longUrl);
 
         ShortUrl result = urlShortenerService.createUrlShortener(shortUrl, ADDRESS);
+    }
+
+    @Test
+    public void shouldReturnShortUrlStatisticsWhengetStatistics() {
+        LocalDateTime lastHit = LocalDateTime.of(2015, 10, 1, 1, 1);
+        LocalDateTime created = LocalDateTime.of(2010, 10, 1, 1, 1);
+        int hits = 10;
+        long id = 100L;
+
+        UrlShortener urlShortener = new UrlShortener();
+        urlShortener.setLastHitAt(lastHit);
+        urlShortener.setHits(hits);
+        urlShortener.setId(id);
+        urlShortener.setCreateadAt(created);
+        urlShortener.setOriginalUrl(this.VALID_URL);
+
+        ShortUrlStatistics expected = new ShortUrlStatistics(this.VALID_URL, created, lastHit, hits);
+
+        when(urlShortenerRepository.findById(id)).thenReturn(Optional.of(urlShortener));
+
+        ShortUrlStatistics result = urlShortenerService.getStatistics(this.TINY_URL_FACEBOOK);
+
+        Assert.assertEquals(expected, result);
     }
 }
