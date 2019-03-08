@@ -30,7 +30,7 @@ To run the application you need:
 
 ### Installing
 
-To run the application you just need execute the `run-application.sh`.
+To run the application you just need to execute the `run-application.sh`.
 
 ### Samples curls
 
@@ -62,4 +62,5 @@ Response:
   "createdAt": "2019-03-08T00:01:29.944",
   "lastHitAt": "2019-03-08T00:02:45.506",
   "hits": 2
-}```
+}
+```
