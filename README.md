@@ -38,12 +38,28 @@ To run the application you just need execute the `run-application.sh`.
 
 Request:
 ```
-curl -X POST "http://localhost:8080/shortener" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"url\": \"https://facebook.com.br\"}"
+curl -X POST "http://localhost:8080/shortener" -H "accept: application/json" -H "Content-Type: application/json" -d "{ \"url\": \"https://facebook.com\"}"
 ```
 
 Response:
 ```
 {
-    "url":"http://localhost:8080/shortener/C"
+    "url":"http://localhost:8080/shortener/b"
 }
 ```
+
+#### Statistics from an Url Shortener
+
+Request:
+```
+curl -X GET "http://localhost:8080/statistics/b" -H "accept: */*"
+```
+
+Response:
+```
+{
+  "originalUrl": "http://facebook.com",
+  "createdAt": "2019-03-08T00:01:29.944",
+  "lastHitAt": "2019-03-08T00:02:45.506",
+  "hits": 2
+}```
